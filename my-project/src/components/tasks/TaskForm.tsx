@@ -11,28 +11,92 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [category, setCategory] = useState<TaskCategory>('personal');
-  const [duration, setDuration] = useState<number>(0); // Duration in minutes
+  const [duration, setDuration] = useState<number>(0);
   
-  // Time-based fields
+ 
+  const [titleError, setTitleError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
+  
   const [startTime, setStartTime] = useState('');
   const [startAmPm, setStartAmPm] = useState('AM');
   const [endTime, setEndTime] = useState('');
   const [endAmPm, setEndAmPm] = useState('AM');
   
-  // Week-based fields (for weekly timeframe)
+  
   const [startDay, setStartDay] = useState('Monday');
   const [endDay, setEndDay] = useState('Friday');
   
-  // Month-based fields (for monthly timeframe)
+  
   const [startWeek, setStartWeek] = useState('First');
   const [endWeek, setEndWeek] = useState('Second');
   
   const { addTask } = useTasks();
 
+  
+  const validateTitle = (input: string): boolean => {
+    
+    if (!/^[a-zA-Z]/.test(input)) {
+      setTitleError('Title must start with a letter');
+      return false;
+    }
+    
+    
+    const wordCount = input.trim().split(/\s+/).length;
+    if (wordCount > 50) {
+      setTitleError('Title cannot exceed 50 words');
+      return false;
+    }
+    
+    setTitleError('');
+    return true;
+  };
+  
+  const validateDescription = (input: string): boolean => {
+    
+    if (!input.trim()) {
+      setDescriptionError('');
+      return true;
+    }
+    
+    
+    if (!/^[a-zA-Z]/.test(input)) {
+      setDescriptionError('Description must start with a letter');
+      return false;
+    }
+    
+    
+    const wordCount = input.trim().split(/\s+/).length;
+    if (wordCount > 50) {
+      setDescriptionError('Description cannot exceed 50 words');
+      return false;
+    }
+    
+    setDescriptionError('');
+    return true;
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    validateTitle(newTitle);
+  };
+  
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    validateDescription(newDescription);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title.trim()) return;
+    // Validate inputs before submitting
+    const isTitleValid = validateTitle(title.trim());
+    const isDescriptionValid = validateDescription(description);
+    
+    if (!isTitleValid || !isDescriptionValid) {
+      return;
+    }
     
     let timeInfo = {};
     
@@ -54,25 +118,26 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
     }
     
     await addTask({
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       status: 'pending',
       priority,
       category,
       date: Timestamp.now(),
-      duration, // Use the user-input duration
+      duration, 
       timeFrame,
       ...timeInfo,
       createdAt: new Date(),
-      
     });
     
-    // Reset form fields
+    // Reset form
     setTitle('');
     setDescription('');
     setPriority('medium');
     setCategory('personal');
     setDuration(0);
+    setTitleError('');
+    setDescriptionError('');
     
     if (timeFrame === 'daily') {
       setStartTime('');
@@ -84,7 +149,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
 
   const formTitle = `Add New ${timeFrame.charAt(0).toUpperCase() + timeFrame.slice(1)} Task`;
 
-  // Render priority and category fields for both mobile and desktop
+  
   const renderPriorityCategory = (isMobile: boolean) => {
     const baseInputClass = isMobile 
       ? "block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -130,7 +195,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
           </select>
         </div>
         
-        <div>
+        <div className='hidden'>
           <label htmlFor={isMobile ? "mobile-duration" : "duration"} className={labelClass}>
             Duration (minutes)
           </label>
@@ -149,7 +214,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
     );
   };
 
-  // Render time input fields based on timeFrame
+  
   const renderTimeInputs = () => {
     if (timeFrame === 'daily') {
       return (
@@ -295,7 +360,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
     return null;
   };
 
-  // Render desktop time inputs based on timeFrame
+  
   const renderDesktopTimeHeaders = () => {
     if (timeFrame === 'daily') {
       return (
@@ -322,7 +387,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
     return null;
   };
 
-  // Render desktop time input fields
+  
   const renderDesktopTimeInputs = () => {
     if (timeFrame === 'daily') {
       return (
@@ -447,11 +512,20 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
     return null;
   };
 
+  
+  const ErrorMessage = ({ message }: { message: string }) => {
+    if (!message) return null;
+    
+    return (
+      <p className="text-red-500 text-xs mt-1">{message}</p>
+    );
+  };
+
   return (
     <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 mb-6">
       <h2 className="text-lg font-medium text-gray-900 mb-4">{formTitle}</h2>
       
-      {/* Mobile view */}
+     
       <div className="md:hidden">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -461,12 +535,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
             <input
               type="text"
               id="mobile-title"
-              className="block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className={`block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${titleError ? 'border-red-500' : ''}`}
               placeholder="Enter task title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange}
               required
             />
+            <ErrorMessage message={titleError} />
           </div>
           
           <div>
@@ -476,17 +551,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
             <textarea
               id="mobile-description"
               rows={3}
-              className="block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter description (optional)"
+              className={`block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${descriptionError ? 'border-red-500' : ''}`}
+              placeholder="Enter description "
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
             />
+            <ErrorMessage message={descriptionError} />
           </div>
           
-          {/* Priority and Category fields for mobile */}
+          
           {renderPriorityCategory(true)}
           
-          {/* Time-specific fields */}
+          
           {renderTimeInputs()}
           
           <button
@@ -498,7 +574,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
         </form>
       </div>
       
-      {/* Desktop view - table layout */}
+      
       <div className="hidden md:block">
         <form onSubmit={handleSubmit}>
           <table className="w-full border-collapse">
@@ -508,7 +584,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
                 <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 border-b">Description</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 border-b">Priority</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-gray-700 border-b">Category</th>
-                
                 {renderDesktopTimeHeaders()}
               </tr>
             </thead>
@@ -518,22 +593,24 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
                   <input
                     type="text"
                     id="title"
-                    className="block w-full p-2 rounded-md focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className={`block w-full p-2 rounded-md focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${titleError ? 'border-red-500' : ''}`}
                     placeholder="Enter task title"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={handleTitleChange}
                     required
                   />
+                  <ErrorMessage message={titleError} />
                 </td>
                 <td className="py-3 px-4 border-b">
                   <textarea
                     id="description"
                     rows={3}
-                    className="block w-full p-2 rounded-md focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Enter description (optional)"
+                    className={`block w-full p-2 rounded-md focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${descriptionError ? 'border-red-500' : ''}`}
+                    placeholder=""
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={handleDescriptionChange}
                   />
+                  <ErrorMessage message={descriptionError} />
                 </td>
                 <td className="py-3 px-4 border-b">
                   <select
@@ -563,7 +640,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ timeFrame }) => {
                     <option value="other">Other</option>
                   </select>
                 </td>
-                <td className=" hidden py-3 px-4 border-b">
+                <td className="hidden py-3 px-4 border-b">
                   <input
                     type="number"
                     id="duration"

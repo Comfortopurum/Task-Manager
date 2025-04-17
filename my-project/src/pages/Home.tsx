@@ -265,7 +265,7 @@ export const Home: React.FC = () => {
                   </p>
                   <p className="text-lg text-gray-500">
                     Today, TaskMaster continues to evolve with the goal of
-                    serving everyone from freelancers to growing businesses.
+                    serving everyone from freelancers to students to stay at home mums, everyone deserves to stay ontop of their game.
                   </p>
                   <div className="mt-8">
                     <div className="flex items-start">
