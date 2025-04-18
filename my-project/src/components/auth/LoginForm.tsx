@@ -51,7 +51,7 @@ export const LoginForm: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Email Field */}
+            
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -69,7 +69,7 @@ export const LoginForm: React.FC = () => {
               />
             </div>
 
-            {/* Password Field with Eye Icon */}
+            
             <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
@@ -99,7 +99,7 @@ export const LoginForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          
           <div>
             <button
               type="submit"

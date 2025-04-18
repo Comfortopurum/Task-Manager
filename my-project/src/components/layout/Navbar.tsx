@@ -14,7 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              {/* Hamburger menu button - only visible on mobile */}
+              
               <button
                 type="button"
                 className="inline-flex items-center justify-center p-2 rounded-md text-indigo-600 hover:text-indigo-900 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"

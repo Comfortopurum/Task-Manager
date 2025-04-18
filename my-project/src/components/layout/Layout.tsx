@@ -15,11 +15,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Pass the state and toggle function to Sidebar */}
+      
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Pass the toggle function to Navbar */}
+        
         <Navbar toggleSidebar={toggleSidebar} />
         
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 md:p-6">
