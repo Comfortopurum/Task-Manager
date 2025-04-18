@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import HeroImage from "/er_1.avif";
+import HeroImage from "/er_1.jpg";
 
 export const Home: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
