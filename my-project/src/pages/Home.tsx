@@ -69,7 +69,7 @@ export const Home: React.FC = () => {
         </div>
       </nav>
 
-      <div className="relative bg-indigo-900 w-full h-screen flex-grow flex items-center justify-center">
+      <div className="relative bg-indigo-700 w-full h-screen flex-grow flex items-center justify-center">
         <img
           src={HeroImage}
           alt="Hero"
