@@ -1,24 +1,12 @@
 import React, { useState } from 'react';
-import { useTasks, TimeFrame } from '../hooks/useTasks';
+import { useTasks} from '../hooks/useTasks';
 import { MonthlyOverview } from '../components/dashboard/MonthlyOverview';
 import { 
-  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+   Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 
 // Task type definition (expand as needed based on your actual Task type)
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  category: string;
-  duration?: number;
-  timeFrame: TimeFrame;
-  dueDate?: Date;
-  createdAt: Date;
-}
 
 // Mock achievement data
 interface Achievement {
@@ -168,15 +156,15 @@ const MonthlyStatsPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Overview component */}
+     
       <MonthlyOverview timeFrame="monthly" />
       
-      {/* Main content based on selected view */}
+      
       {selectedView === 'overview' && (
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Monthly Performance</h2>
           
-          {/* Weekly comparison chart */}
+          
           <div className="bg-white rounded-lg shadow p-4 mb-8">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Weekly Progress</h3>
             <div className="h-72">
@@ -199,7 +187,7 @@ const MonthlyStatsPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Achievements section */}
+          
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Monthly Achievements</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -278,8 +266,8 @@ const MonthlyStatsPage: React.FC = () => {
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Category Analysis</h2>
           
-          {/* Category distribution pie chart */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+         
+          <div className="grid grid-cols-1 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-4">
               <h3 className="text-lg font-medium text-gray-700 mb-4">Task Distribution by Category</h3>
               <div className="h-64">
@@ -295,7 +283,7 @@ const MonthlyStatsPage: React.FC = () => {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {getCategoryData().map((entry, index) => (
+                      {getCategoryData().map((_entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -306,31 +294,7 @@ const MonthlyStatsPage: React.FC = () => {
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Time Spent by Category</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={getCategoryData()}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="duration"
-                    >
-                      {getCategoryData().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${Math.floor(Number(value) / 60)}h ${Number(value) % 60}m`, 'Duration']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            
           </div>
           
           {/* Category detailed table */}

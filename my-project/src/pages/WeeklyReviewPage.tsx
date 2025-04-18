@@ -1,52 +1,37 @@
 import React, { useState } from 'react';
-import { useTasks, TimeFrame } from '../hooks/useTasks';
+import { useTasks} from '../hooks/useTasks';
 import { WeeklyOverview } from '../components/dashboard/WeeklyOverview';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+   PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 
-// Task type definition (expand as needed based on your actual Task type)
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  category: string;
-  duration?: number;
-  timeFrame: TimeFrame;
-  dueDate?: Date;
-  createdAt: Date;
-}
+
 
 const WeeklyReviewPage: React.FC = () => {
   const { tasks, loading } = useTasks();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [] = useState<string | null>(null);
   
-  // Filter tasks for weekly timeframe
+  
   const weeklyTasks = tasks.filter(task => task.timeFrame === 'weekly');
   
-  // Filter based on selected category
-  const filteredTasks = weeklyTasks.filter(task => {
-    return selectedCategory ? task.category === selectedCategory : true;
-  });
+  
 
-  // Get unique categories
+  
   const categories = Array.from(
     new Set(weeklyTasks.map(task => task.category))
   );
 
-  // Chart colors
+  
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
-  // Get current week's days
+  
   const getDaysOfWeek = (): string[] => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
     const dayOfWeek = today.getDay();
     
-    // Start from the beginning of the week (Sunday as day 0)
+    
     return days.map((_, index) => {
       const day = new Date(today);
       day.setDate(today.getDate() - dayOfWeek + index);
@@ -54,7 +39,7 @@ const WeeklyReviewPage: React.FC = () => {
     });
   };
 
-  // Generate daily completion data for the current week
+  
   const getDailyCompletionData = () => {
     const daysOfWeek = getDaysOfWeek();
     const dailyData = daysOfWeek.map(day => ({
@@ -63,11 +48,11 @@ const WeeklyReviewPage: React.FC = () => {
       pending: 0
     }));
 
-    // Assuming tasks have a createdAt date property
+    
     weeklyTasks.forEach(task => {
       if (task.createdAt) {
         const taskDate = new Date(task.createdAt);
-        const dayIndex = taskDate.getDay(); // 0 for Sunday, 1 for Monday, etc.
+        const dayIndex = taskDate.getDay(); 
         
         if (task.status === 'completed') {
           dailyData[dayIndex].completed += 1;
@@ -80,7 +65,7 @@ const WeeklyReviewPage: React.FC = () => {
     return dailyData;
   };
 
-  // Generate category distribution data
+  
   const getCategoryDistributionData = () => {
     const categoryData = categories.map(category => {
       const tasksInCategory = weeklyTasks.filter(task => task.category === category);
@@ -94,7 +79,7 @@ const WeeklyReviewPage: React.FC = () => {
     return categoryData;
   };
 
-  // Calculate productivity score (0-100) based on task completion and priority
+  
   const calculateProductivityScore = () => {
     if (weeklyTasks.length === 0) return 0;
     
@@ -119,13 +104,13 @@ const WeeklyReviewPage: React.FC = () => {
     return Math.round((earnedPoints / totalPoints) * 100);
   };
 
-  // Weekly performance data
+  
   const weeklyPerformanceData = [
     { name: 'Completion Rate', value: Math.round((weeklyTasks.filter(t => t.status === 'completed').length / weeklyTasks.length) * 100) || 0 },
     { name: 'High Priority Completion', value: Math.round((weeklyTasks.filter(t => t.status === 'completed' && t.priority === 'high').length / weeklyTasks.filter(t => t.priority === 'high').length) * 100) || 0 },
-    { name: 'Time Efficiency', value: 80 }, // Placeholder value, would need actual data
-    { name: 'Task Distribution', value: 70 }, // Placeholder value, would need actual data
-    { name: 'Consistency', value: 65 } // Placeholder value, would need actual data
+    { name: 'Time Efficiency', value: 80 }, 
+    { name: 'Task Distribution', value: 70 }, 
+    { name: 'Consistency', value: 65 }
   ];
 
   if (loading) {
@@ -140,15 +125,15 @@ const WeeklyReviewPage: React.FC = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Weekly Review</h1>
       
-      {/* Overview component */}
+      
       <WeeklyOverview timeFrame="weekly" />
       
-      {/* Additional insights section */}
+      
       <div className="mt-8">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">Weekly Insights</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Daily task completion chart */}
+          
           <div className="bg-white rounded-lg shadow p-4">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Daily Task Completion</h3>
             <div className="h-64">
@@ -185,11 +170,11 @@ const WeeklyReviewPage: React.FC = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {getCategoryDistributionData().map((entry, index) => (
+                    {getCategoryDistributionData().map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value, name, props) => [`${value} tasks`, props.payload.name]} />
+                  
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -197,9 +182,9 @@ const WeeklyReviewPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Productivity performance */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Performance radar chart */}
+          
           <div className="bg-white rounded-lg shadow p-4">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Performance Metrics</h3>
             <div className="h-64">
@@ -221,13 +206,13 @@ const WeeklyReviewPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Productivity score */}
+         
           <div className="bg-white rounded-lg shadow p-4">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Weekly Productivity Score</h3>
             <div className="flex flex-col items-center justify-center h-64">
               <div className="relative w-48 h-48">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
-                  {/* Background circle */}
+                  
                   <circle
                     cx="50"
                     cy="50"
@@ -236,7 +221,7 @@ const WeeklyReviewPage: React.FC = () => {
                     stroke="#e6e6e6"
                     strokeWidth="8"
                   />
-                  {/* Progress circle */}
+                  
                   <circle
                     cx="50"
                     cy="50"
@@ -271,7 +256,7 @@ const WeeklyReviewPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Weekly goals progress */}
+      
       <div className="mt-8">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">Weekly Goals Progress</h2>
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -320,7 +305,7 @@ const WeeklyReviewPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Comparison with previous week */}
+      
       <div className="mt-8 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">Previous Week Comparison</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -359,7 +344,7 @@ const WeeklyReviewPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Weekly recommendations */}
+      
       <div className="mt-8 bg-indigo-50 rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-indigo-900 mb-2">Weekly Recommendations</h2>
         <ul className="space-y-2 text-indigo-700">
