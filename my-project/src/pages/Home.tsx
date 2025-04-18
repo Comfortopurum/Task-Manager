@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import HeroImage from "/er_1.jpg";
+import HeroImage from "/er_1.avif";
 
 export const Home: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,11 +69,11 @@ export const Home: React.FC = () => {
         </div>
       </nav>
 
-      <div className="relative w-full h-screen flex-grow flex items-center justify-center">
+      <div className="relative bg-indigo-900 w-full h-screen flex-grow flex items-center justify-center">
         <img
           src={HeroImage}
           alt="Hero"
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute inset-0 w-full h-full  object-cover object-center" 
         />
         <div className=" container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full relative z-10">
           <div className="text-center max-w-3xl mx-auto">
