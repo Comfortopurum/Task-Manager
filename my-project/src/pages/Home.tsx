@@ -15,7 +15,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar */}
+      
       <nav
         className={`fixed w-full z-30 transition-all duration-300 ${
           isScrolled ? " bg-indigo-700 shadow-md py-2" : "bg-transparent py-4"
@@ -69,7 +69,7 @@ export const Home: React.FC = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Full Screen */}
+      
       <div className="bg-[url('/er_1.jpg')] w-full h-screen bg-cover bg-center flex-grow flex items-center  justify-center">
         <div className=" container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
           <div className="text-center max-w-3xl mx-auto">
@@ -105,7 +105,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Features Section */}
+      
       <div className=" py-16 " id="features">
         <div className="max-w-7xl container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
@@ -211,7 +211,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* About Section */}
+     
       <div className="bg-white py-16" id="about">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
@@ -347,7 +347,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Testimonials Section */}
+      
       <div className="bg-gray-100 py-16" id="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-12">
