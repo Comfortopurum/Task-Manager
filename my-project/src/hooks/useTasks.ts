@@ -31,6 +31,8 @@ export interface Task {
   timeFrame: TimeFrame;
   createdAt: Date;
   dueDate?: Date;
+  timeSpent?: number;
+  completedAt?: Date;
   
   // Daily timeframe properties
   startTime?: string;
@@ -67,6 +69,7 @@ export const useTasks = () => {
           ...data,
           createdAt: data.date ? data.date.toDate() : new Date(),
           dueDate: data.dueDate ? data.dueDate.toDate() : undefined
+          
         } as Task;
       });
 

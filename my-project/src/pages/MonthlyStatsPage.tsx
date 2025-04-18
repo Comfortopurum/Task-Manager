@@ -6,9 +6,7 @@ import {
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 
-// Task type definition (expand as needed based on your actual Task type)
 
-// Mock achievement data
 interface Achievement {
   id: string;
   title: string;
@@ -21,26 +19,26 @@ const MonthlyStatsPage: React.FC = () => {
   const { tasks, loading } = useTasks();
   const [selectedView, setSelectedView] = useState<'overview' | 'categories' | 'trends'>('overview');
   
-  // Filter tasks for monthly timeframe
+  
   const monthlyTasks = tasks.filter(task => task.timeFrame === 'monthly');
   
-  // Get current month name
+ 
   const getCurrentMonth = () => {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[new Date().getMonth()];
   };
   
-  // Get unique categories
+ 
   const categories = Array.from(
     new Set(monthlyTasks.map(task => task.category))
   );
 
-  // Chart colors
+  
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
-  // Generate weekly data for the current month
+  
   const getWeeklyData = () => {
-    // This is a simplified example - in a real app you'd calculate actual weeks
+    
     return [
       { name: 'Week 1', completed: 8, pending: 2, duration: 480 },
       { name: 'Week 2', completed: 10, pending: 3, duration: 540 },
@@ -49,7 +47,7 @@ const MonthlyStatsPage: React.FC = () => {
     ];
   };
 
-  // Generate category distribution data
+  
   const getCategoryData = () => {
     return categories.map(category => {
       const tasksInCategory = monthlyTasks.filter(task => task.category === category);
@@ -62,16 +60,16 @@ const MonthlyStatsPage: React.FC = () => {
     });
   };
 
-  // Generate productivity trend data
+  
   const getProductivityTrendData = () => {
-    // This is a simplified example - in a real app you'd calculate actual days
+    
     const days = [];
     const today = new Date();
     const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
     
     for (let i = 1; i <= daysInMonth; i++) {
-      // Generate some random data for this example
-      const completionRate = Math.floor(Math.random() * 40) + 60; // 60-100%
+      
+      const completionRate = Math.floor(Math.random() * 40) + 60; 
       days.push({
         day: i,
         completionRate
@@ -81,7 +79,7 @@ const MonthlyStatsPage: React.FC = () => {
     return days;
   };
   
-  // Mock monthly achievements
+  
   const achievements: Achievement[] = [
     {
       id: '1',
@@ -213,7 +211,7 @@ const MonthlyStatsPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Month highlights */}
+          
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Month Highlights</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -297,7 +295,7 @@ const MonthlyStatsPage: React.FC = () => {
             
           </div>
           
-          {/* Category detailed table */}
+          
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -355,7 +353,7 @@ const MonthlyStatsPage: React.FC = () => {
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Monthly Trends</h2>
           
-          {/* Daily productivity trend */}
+          
           <div className="bg-white rounded-lg shadow p-4 mb-8">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Daily Completion Rate</h3>
             <div className="h-72">
@@ -387,7 +385,7 @@ const MonthlyStatsPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Month-to-month comparison */}
+          
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <h3 className="text-lg font-medium text-gray-700 mb-4">Month-to-Month Comparison</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
