@@ -4,7 +4,9 @@ import {
   signInWithEmailAndPassword, 
   onAuthStateChanged, 
   signOut, 
-  User 
+  User,
+  sendEmailVerification as firebaseSendEmailVerification,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
@@ -33,5 +35,21 @@ export const useAuth = () => {
     return signOut(auth);
   };
 
-  return { user, loading, register, login, logout };
+  const sendEmailVerification = async (user: User) => {
+    return firebaseSendEmailVerification(user);
+  };
+
+  const resetPassword = async (email: string) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
+  return { 
+    user, 
+    loading, 
+    register, 
+    login, 
+    logout, 
+    sendEmailVerification,
+    resetPassword
+  };
 };

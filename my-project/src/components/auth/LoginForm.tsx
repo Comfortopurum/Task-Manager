@@ -110,7 +110,7 @@ export const LoginForm: React.FC = () => {
           </div>
           <div className="text-sm text-center">
             <Link
-              to="/login"
+              to="/register"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Dont have an account? Sign UP

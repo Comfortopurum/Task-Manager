@@ -1,41 +1,125 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+
+interface ValidationErrors {
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
 
 export const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const { register, user } = useAuth();
-  const navigate = useNavigate();
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConPassword, setShowConPassword] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const { register, user, sendEmailVerification } = useAuth(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+
+    if (user && user.emailVerified) {
       navigate("/dashboard");
     }
-  }, [user]);
+  }, [user, navigate]);
+  
+  
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!email) {
+      setValidationErrors(prev => ({ ...prev, email: "Email is required" }));
+      return false;
+    } else if (!emailRegex.test(email)) {
+      setValidationErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
+      return false;
+    }
+    
+    setValidationErrors(prev => ({ ...prev, email: undefined }));
+    return true;
+  };
+
+  
+  const validatePassword = (password: string): boolean => {
+    if (!password) {
+      setValidationErrors(prev => ({ ...prev, password: "Password is required" }));
+      return false;
+    } else if (password.length < 8) {
+      setValidationErrors(prev => ({ ...prev, password: "Password must be at least 8 characters" }));
+      return false;
+    } else if (!/[A-Z]/.test(password)) {
+      setValidationErrors(prev => ({ ...prev, password: "Password must contain at least one uppercase letter" }));
+      return false;
+    } else if (!/[a-z]/.test(password)) {
+      setValidationErrors(prev => ({ ...prev, password: "Password must contain at least one lowercase letter" }));
+      return false;
+    } else if (!/[0-9]/.test(password)) {
+      setValidationErrors(prev => ({ ...prev, password: "Password must contain at least one number" }));
+      return false;
+    } else if (!/[^A-Za-z0-9]/.test(password)) {
+      setValidationErrors(prev => ({ ...prev, password: "Password must contain at least one special character" }));
+      return false;
+    }
+    
+    setValidationErrors(prev => ({ ...prev, password: undefined }));
+    return true;
+  };
+
+  
+  const validateConfirmPassword = (confirmPass: string): boolean => {
+    if (confirmPass !== password) {
+      setValidationErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      return false;
+    }
+    
+    setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setValidationErrors({});
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
+
+    if (!isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       return;
     }
 
     try {
-      await register(email, password);
-      // user state will update and trigger redirect
-    } catch (err) {
-      setError("Failed to create an account. Account already exist.");
+      const userCredential = await register(email, password);
+      
+      
+      if (userCredential?.user) {
+        await sendEmailVerification(userCredential.user);
+        
+        setVerificationSent(true);
+      }
+      
+      
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        setError("Email is already in use. Please try another one.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("Invalid email format.");
+      } else if (err.code === 'auth/weak-password') {
+        setError("Password is too weak. Please choose a stronger password.");
+      } else {
+        setError("Failed to create an account. Please try again.");
+      }
       console.error(err);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-blue-600 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
@@ -57,9 +141,20 @@ export const RegisterForm: React.FC = () => {
           </div>
         )}
 
+        {verificationSent && (
+          <div
+            className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <span className="block sm:inline">
+              Verification email sent! Please check your inbox and verify your email address, then proceed to Log in.
+            </span>
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
-            <div>
+            <div className="mb-4">
               <label htmlFor="email-address" className="sr-only">
                 Email address
               </label>
@@ -69,13 +164,19 @@ export const RegisterForm: React.FC = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-t-md relative block w-full px-3 py-2 border ${
+                  validationErrors.email ? "border-red-300" : "border-gray-300"
+                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => validateEmail(email)}
               />
+              {validationErrors.email && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.email}</p>
+              )}
             </div>
-            <div className="relative">
+            <div className="relative mb-4">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
@@ -85,10 +186,13 @@ export const RegisterForm: React.FC = () => {
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className={`appearance-none relative block w-full px-3 py-2 border ${
+                  validationErrors.password ? "border-red-300" : "border-gray-300"
+                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => validatePassword(password)}
               />
               <button
                 type="button"
@@ -101,6 +205,9 @@ export const RegisterForm: React.FC = () => {
                   <EyeIcon size={18} />
                 )}
               </button>
+              {validationErrors.password && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.password}</p>
+              )}
             </div>
             <div className="relative">
               <label htmlFor="confirm-password" className="sr-only">
@@ -112,10 +219,13 @@ export const RegisterForm: React.FC = () => {
                 type={showConPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-b-md relative block w-full px-3 py-2 border ${
+                  validationErrors.confirmPassword ? "border-red-300" : "border-gray-300"
+                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={() => validateConfirmPassword(confirmPassword)}
               />
               <button
                 type="button"
@@ -128,7 +238,21 @@ export const RegisterForm: React.FC = () => {
                   <EyeIcon size={18} />
                 )}
               </button>
+              {validationErrors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.confirmPassword}</p>
+              )}
             </div>
+          </div>
+
+          <div className="text-xs text-gray-600 mt-2">
+            <p>Password must contain:</p>
+            <ul className="list-disc pl-5 mt-1 space-y-1">
+              <li>At least 8 characters</li>
+              <li>At least one uppercase letter</li>
+              <li>At least one lowercase letter</li>
+              <li>At least one number</li>
+              <li>At least one special character</li>
+            </ul>
           </div>
 
           <div>
@@ -136,7 +260,7 @@ export const RegisterForm: React.FC = () => {
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign up
+              Create Account
             </button>
           </div>
 
