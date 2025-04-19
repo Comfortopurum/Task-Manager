@@ -7,24 +7,51 @@ export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login, user } = useAuth();
+  const [emailVerificationNeeded, setEmailVerificationNeeded] = useState(false);
+  const { login, user, sendEmailVerification } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.emailVerified) {
       navigate("/dashboard");
+    } else if (user && !user.emailVerified) {
+      
+      setEmailVerificationNeeded(true);
+      setError("Please verify your email address before continuing.");
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setEmailVerificationNeeded(false);
 
     try {
-      await login(email, password);
+      const userCredential = await login(email, password);
+      
+      // Check if email is verified
+      if (userCredential?.user && !userCredential.user.emailVerified) {
+        setEmailVerificationNeeded(true);
+        setError("Please verify your email address before continuing.");
+      }
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found' || err.code === 'invalid') {
+        setError("Failed to log in.  Please try again.");
+      } else {
+        setError("Failed to log in. Incorrect email address or password.");
+      }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!user) return;
+    
+    try {
+      await sendEmailVerification(user);
+      setError("Verification email sent. Please check your inbox.");
     } catch (err) {
-      setError("Failed to log in. Incorrect email address or password.");
+      setError("Failed to send verification email. Please try again.");
     }
   };
 
@@ -42,10 +69,19 @@ export const LoginForm: React.FC = () => {
 
         {error && (
           <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            className={`${emailVerificationNeeded ? "bg-yellow-100 border-yellow-400 text-yellow-700" : "bg-red-100 border-red-400 text-red-700"} px-4 py-3 border rounded relative`}
             role="alert"
           >
             <span className="block sm:inline">{error}</span>
+            
+            {emailVerificationNeeded && (
+              <button
+                onClick={handleResendVerification}
+                className="mt-2 inline-flex w-full justify-center rounded-md bg-yellow-50 px-3 py-2 text-sm font-semibold text-yellow-800 shadow-sm hover:bg-yellow-100 sm:w-auto"
+              >
+                Resend Verification Email
+              </button>
+            )}
           </div>
         )}
 
@@ -113,7 +149,7 @@ export const LoginForm: React.FC = () => {
               to="/register"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
-              Dont have an account? Sign UP
+              Don't have an account? Sign Up
             </Link>
           </div>
         </form>
