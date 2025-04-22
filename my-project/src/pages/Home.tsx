@@ -225,7 +225,7 @@ export const Home: React.FC = () => {
             </p>
             <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
               Founded in 2025, TaskMaster is aimed to help thousands of
-              individuals and teams accomplish more with less stress.
+              individuals accomplish more with less stress.
             </p>
           </div>
 
